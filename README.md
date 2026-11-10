@@ -34,56 +34,28 @@ Present, with a limit you should know about:
 
 ## Run it on Ubuntu
 
-Built and run on Ubuntu 26.04.1 with rustc 1.93.1. The crate uses the 2021 edition. You need a desktop session, because the panel is a window. A headless machine has nowhere to draw it.
-
-### 1. Packages
-
-These are the compiler and window libraries that were installed on the machine that built the panel:
-
-```sh
-sudo apt update
-sudo apt install build-essential pkg-config libxkbcommon-dev libwayland-dev libgl1-mesa-dev libegl1-mesa-dev libxcb1-dev
-```
-
-### 2. Rust
-
-If `rustc --version` is missing, install the stable toolchain:
-
-```sh
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-. "$HOME/.cargo/env"
-```
-
-Open a new terminal after that so `cargo` is on `PATH`.
-
-### 3. Camera
-
-Plug the Tiny 2 Lite into a USB port. Ubuntu's kernel binds `uvcvideo` on its own. Confirm the device and a video node:
-
-```sh
-lsusb -d 3564:fef9
-ls -l /dev/video*
-```
-
-The panel scans `/dev/video0` through `/dev/video15` for the node whose name contains `OBSBOT`. A desktop session usually gets permission to those nodes when the camera is plugged in. If the open fails, add your user to the `video` group and log in again:
-
-```sh
-sudo usermod -aG video "$USER"
-```
-
-### 4. Build and run
-
-The first build downloads the crates, so it needs a network. Later builds can pass `--offline`.
+Built and run on Ubuntu 26.04.1. The panel is a window, so run the installer from a desktop session. Plug the Tiny 2 Lite in first. Ubuntu binds `uvcvideo` on its own.
 
 ```sh
 git clone https://github.com/tehlulzywolf/obsbot-center-linux.git
-cd obsbot-center-linux/obsbot-core
-cargo run --example panel --features panel
+cd obsbot-center-linux
+./install.sh
 ```
 
-That compiles the panel and opens the window on the current display. Leave the preview at 30 fps. A 60 fps preview on a usbip link has dropped the camera while a vendor write was in flight.
+`install.sh` asks for your password when it needs sudo. It then:
 
-### 5. Tests
+- installs the compiler and the window libraries
+- installs Rust stable when the compiler is missing or older than 1.81
+- adds your user to the `video` group when you are not already in it
+- builds the release panel
+- adds an OBSBOT Center entry to the application menu
+- starts the window
+
+Run `install.sh` again after you pull new code. It builds again and refreshes the menu entry. The command it installs is `~/.local/bin/obsbot-center`.
+
+The panel scans `/dev/video0` through `/dev/video15` for the node whose name contains `OBSBOT`. If the preview stays on "waiting for the camera" after the installer added you to `video`, log out and back in. Leave the preview at 30 fps. A 60 fps preview on a usbip link has dropped the camera while a vendor write was in flight.
+
+### Tests
 
 The tests do not open the camera.
 
@@ -104,7 +76,7 @@ usbipd list
 usbipd attach --wsl --busid <BUSID>
 ```
 
-`usbipd detach --busid <BUSID>` gives the camera back to Windows. Inside Ubuntu, build and run with the same `cargo` commands. WSLg provides the display.
+`usbipd detach --busid <BUSID>` gives the camera back to Windows. Inside Ubuntu, run `./install.sh`. WSLg provides the display.
 
 `obsbot-core/run_panel.sh` is only for that WSLg case. It restarts the already-built debug binary if WSLg drops the connection, and it points the process at WSLg's runtime directory. Do not use it on a normal Ubuntu desktop.
 
@@ -112,6 +84,7 @@ usbipd attach --wsl --busid <BUSID>
 
 | Path | What it is |
 |---|---|
+| `install.sh` | Installs dependencies, builds the panel, and starts it |
 | `obsbot-core/` | The Rust crate, the panel, and the tests |
 | `docs/images/` | The screenshots above |
 
