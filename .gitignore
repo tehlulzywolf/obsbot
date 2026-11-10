@@ -17,6 +17,9 @@ credentials.json
 id_rsa
 id_ed25519
 
+# Local Cursor guidance. It stays on this machine.
+.cursor/
+
 # OS and editor noise
 Thumbs.db
 Desktop.ini
