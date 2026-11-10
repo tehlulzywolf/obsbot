@@ -76,8 +76,8 @@ sudo usermod -aG video "$USER"
 The first build downloads the crates, so it needs a network. Later builds can pass `--offline`.
 
 ```sh
-git clone https://github.com/tehlulzywolf/obsbot.git
-cd obsbot/obsbot-core
+git clone https://github.com/tehlulzywolf/obsbot-center-linux.git
+cd obsbot-center-linux/obsbot-core
 cargo run --example panel --features panel
 ```
 
