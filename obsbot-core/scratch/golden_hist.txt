@@ -1,9 +1,0 @@
-=== /mnt/c/Users/WOLF/RE-workspace/obsbot-center/analysis/caps/cap1.pcap  events=120
-kinds: {'GET-s2': 40, 'AA-SET': 14, 'GET-s6': 18, 'GET-s11': 3, 'GET-s4': 18, 'SET-s4': 10, 'GET-s8': 4, 'GET-s1': 2, 'GET-s10': 2, 'GET-s3': 7, 'GET-s7': 2}
---- SET-s4
-        9  wi=0200 breq=01 len=60
-        1  wi=0300 breq=01 len=2
---- SET-s4:first16
-        6  01000000000000000000000000000000
-        3  00600036005a002f6170702f70726976
-        1  4000

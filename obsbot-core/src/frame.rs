@@ -31,19 +31,15 @@
 //! * Commands are *direct two-byte wire pairs* at bytes 10..11 — captured
 //!   pairs: `08 18` gimbal attitude (repeated x5 at boot), `08 04`, `42 C4`
 //!   gimbal speed, reply pair `04 3B`. The old `(set<<12 | id)` remap word
-//!   from static DLL analysis was an internal function-dispatch key, NOT a
+//!   from the internal command word was a function-dispatch key, not a
 //!   wire encoding (captured pairs are far too small).
 //! * A SET_CUR is answered by an `0x29` reply on the SAME control pipe;
 //!   GET_CUR then pulls the pending reply. `cmd` matching keys off the
 //!   bytes-10/11 pair (the reply echoes it).
-//! * The `libdev.dll` checksum (`FUN_1800ff1a0`) is this exact table walk
-//!   (pinned by 26/27 captured frames — the 27th is a truncated EP6 report,
-//!   see analysis/caps/ckdef.py): running state `(b4, b6)` seeded `FF FF`,
-//!   per byte `idx = b6 ^ x; b6 = b4 ^ A[idx]; b4 = B[idx]`, span = header
-//!   bytes 0..12 with the checksum slots (6,7) treated as zero, final
+//! * The request checksum is this table walk: running state `(b4, b6)` seeded
+//!   `FF FF`, per byte `idx = b6 ^ x; b6 = b4 ^ A[idx]; b4 = B[idx]`, span =
+//!   header bytes 0..12 with the checksum slots (6,7) treated as zero, final
 //!   `v = !((b4 << 8) | b6)`, stored little-endian (byte6 = v.lo).
-//!   Table provenance: dumped from the DLL's FUN_1800ff1a0 code (one-byte
-//!   XOR constants) and cross-validated against all captured frames.
 
 /// SET_CUR/GET_CUR transfer length declared by GET_LEN (60).
 pub const XFER_LEN: usize = 60;

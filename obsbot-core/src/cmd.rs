@@ -434,12 +434,10 @@ pub fn parse_tally(p: &[u8], tally: bool, bright: u32, battery: bool) -> (bool, 
     (t, b, bat)
 }
 
-// ---- roadmap items 1/2/3 (libdev RE 2026-11-09, see
-// analysis/roadmap_items_1_2_3_9_findings.md). Rule re-confirmed: libdev cmd
-// word 0xS_ID -> wire pair [ID, S<<4]; setter args are the raw struct field
-// at libdev stack offset +0x1c, i.e. u32 little-endian. This firmware takes
-// the serial-word-0 shape for set-1 (sleep/wake live proof), so these ride
-// the same status-ACK pattern as tally: pinned pair + kind::GET request.
+// Wire pair for command word 0xS_ID is [ID, S<<4]. Setter args are a
+// little-endian u32. This firmware uses the no-serial shape for set 1
+// (sleep and wake), so these ride the same status-ACK pattern as tally:
+// pinned pair, then a kind::GET request.
 
 /// `cameraSetFaceFocusR` @0x18002f6e0 — vendor face-focus flag, internal
 /// word `0x10003` -> pair `03 10`, arg u32 bool. Rides ON TOP of the UVC

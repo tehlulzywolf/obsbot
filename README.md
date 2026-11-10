@@ -1,6 +1,6 @@
 # OBSBOT Center for Linux
 
-A Linux port of OBSBOT Center for the Tiny 2 Lite (`3564:fef9`). It runs on Ubuntu. The window is a native egui app: it previews the camera and drives the gimbal, zoom, image controls, and the AI tracking modes that have been checked on the hardware. The control protocol is a Rust port of the vendor commands in OBSBOT Center's `libdev.dll`.
+A Linux port of the OBSBOT Center panel for the Tiny 2 Lite (`3564:fef9`). It runs on Ubuntu. The window is a native egui app: it previews the camera and drives the gimbal, zoom, image controls, and the AI tracking modes that have been checked on the hardware.
 
 The camera on this project is product type 3 (Tail2Lite). Vendor commands go out on the UVC extension unit through the kernel's `uvcvideo` driver, not over HID. The Tiny 2 Lite does not expose a HID interface.
 
@@ -113,12 +113,7 @@ usbipd attach --wsl --busid <BUSID>
 | Path | What it is |
 |---|---|
 | `obsbot-core/` | The Rust crate, the panel, and the tests |
-| `obsbot-center/analysis/HANDOFF.md` | Current protocol notes, including what was confirmed on the camera |
-| `obsbot-center/reports/` | Earlier isolation write-ups. The top of each report says what a later pass replaced |
-| `obsbot-linuxkit/` | Small Linux helpers from the first bring-up |
 | `docs/images/` | The screenshots above |
-
-USB captures and build output are not in the repository. The notes taken from the captures are.
 
 ## License
 

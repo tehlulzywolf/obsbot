@@ -1,13 +1,26 @@
 # Rust build output
 **/target/
 
-# USB captures and ETW traces. The notes that came from them stay in the tree.
+# USB captures and ETW traces.
 **/*.pcap
 **/*.pcapng
 **/*.etl
 
-# Compiled helper left in the linux kit
-obsbot-linuxkit/hello_gimbal
+# Research notes and bring-up probes. They stay on this machine.
+obsbot-center/
+obsbot-linuxkit/
+obsbot-core/scratch/
+obsbot-core/.cargo/
+obsbot-core/examples/probe_*.rs
+obsbot-core/examples/repro*.rs
+obsbot-core/examples/xuprobe.rs
+obsbot-core/examples/rawdump.rs
+obsbot-core/examples/layout_diff.rs
+obsbot-core/examples/readback.rs
+obsbot-core/examples/hello_gimbal.rs
+obsbot-core/examples/kernel_test.rs
+obsbot-core/examples/grab_test.rs
+obsbot-core/examples/test_ai.rs
 
 # Secrets and local environment
 .env

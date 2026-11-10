@@ -2,13 +2,13 @@
 name = "obsbot-core"
 version = "0.1.0"
 edition = "2021"
-description = "OBSBOT camera control (Tiny 2 Lite, VID_3564 PID_FEF9) — reverse-engineered protocol port of libdev.dll for Linux"
+description = "OBSBOT Tiny 2 Lite camera control for Linux"
 license = "MIT"
+autoexamples = false
 
 # Core has no dependencies: codec/device tests build and run offline on any
 # OS. The live transports are opt-in:
-#   - Linux UVC-XU (Tiny 2 Lite vendor channel) via the `uvc` feature (nusb).
-#   - Linux hidraw (other OBSBOT SKUs) via std-only transport.
+#   - Linux UVC extension unit via the `uvc` feature (nusb).
 
 [features]
 uvc = ["dep:nusb"]
@@ -27,41 +27,8 @@ nusb = { version = "0.2", optional = true }
 libc = "0.2"
 
 [[example]]
-name = "kernel_test"
-required-features = ["codec"]
-
-[[example]]
 name = "panel"
 required-features = ["panel"]
-
-[[example]]
-name = "xuprobe"
-required-features = ["uvc"]
-
-[[example]]
-name = "grab_test"
-required-features = ["stream"]
-
-[[example]]
-name = "hello_gimbal"
-required-features = ["uvc"]
-
-[[example]]
-name = "rawdump"
-required-features = ["uvc"]
-
-[[example]]
-name = "probe_preset"
-required-features = ["uvc"]
-
-
-[[example]]
-name = "probe_ai"
-required-features = ["codec"]
-
-[[example]]
-name = "probe_aimode"
-required-features = ["codec"]
 
 # Debug `cargo run --example panel` decodes a 720p JPEG every frame.
 # opt-level 0 in these crates cannot finish inside 16.7 ms, so the

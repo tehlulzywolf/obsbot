@@ -1,11 +1,6 @@
-//! obsbot-core — reverse-engineered OBSBOT camera control protocol.
+//! obsbot-core — OBSBOT Tiny 2 Lite camera control for Linux.
 //!
-//! Source of truth: decompile of `libdev.dll` (OBSBOT Center, Windows),
-//! SHA-256 2486d1f3fe8be947fe62f6392a1f24641607f5d3b0d865cd31b1eef18d254bd8.
-//! Docs: `../obsbot-center/reports/OBSBOT_camera_control_isolation.md`
-//! and `analysis/cmd_payload_layouts.md`.
-//!
-//! Protocol summary (Tiny 2 Lite, capture-verified 2026-11-07 — no HID):
+//! Protocol summary (Tiny 2 Lite, no HID interface):
 //! - Vendor frames ride the UVC Extension Unit (GUID {9a1e7291-…}, unit 2,
 //!   VC interface 0) via GET_LEN/SET_CUR/GET_CUR class controls on EP0;
 //!   async events push on interrupt-IN EP 0x86.

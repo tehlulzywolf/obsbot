@@ -1,3 +1,0 @@
-Running as user "root" and group "root". This could be dangerous.
-tshark: Some fields aren't valid:
-	usb.bRequest
