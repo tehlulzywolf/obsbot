@@ -1,16 +1,16 @@
 # OBSBOT Center for Linux
 
-A Linux panel for the OBSBOT Tiny 2 Lite (`3564:fef9`). It previews the camera and drives the gimbal, zoom, image controls, and the AI tracking modes that have been checked on the hardware. The control protocol is a Rust port of the vendor commands in OBSBOT Center's `libdev.dll`. The window is an egui app running under WSLg.
+A Linux port of OBSBOT Center for the Tiny 2 Lite (`3564:fef9`). It runs on Ubuntu. The window is a native egui app: it previews the camera and drives the gimbal, zoom, image controls, and the AI tracking modes that have been checked on the hardware. The control protocol is a Rust port of the vendor commands in OBSBOT Center's `libdev.dll`.
 
-The camera on this project is product type 3 (Tail2Lite). Vendor commands go out on the UVC extension unit through the kernel, not over HID. The Tiny 2 Lite does not expose a HID interface.
+The camera on this project is product type 3 (Tail2Lite). Vendor commands go out on the UVC extension unit through the kernel's `uvcvideo` driver, not over HID. The Tiny 2 Lite does not expose a HID interface.
 
 ![Live preview and the Image tab](docs/images/panel-preview.png)
 
-![Hand tracking menu](docs/images/panel-hand-menu.png)
+![The More tab](docs/images/panel-more.png)
 
 ## What the panel does
 
-Checked on a live Tiny 2 Lite attached to WSL with usbip:
+Checked on a live Tiny 2 Lite under Ubuntu 26.04:
 
 - 720p30 MJPEG preview.
 - Gimbal pad and speed. Pan moves in 1° steps. The pad sends absolute pan and tilt.
@@ -32,56 +32,81 @@ Present, with a limit you should know about:
 - Factory Reset and Manual Update are disabled. Factory reset is never sent.
 - The record, snapshot, and folder buttons are in the toolbar. A virtual camera is not part of this build. The line above the preview says so.
 
-## Prerequisites
+## Run it on Ubuntu
 
-- Windows 10 or 11, with WSL2 and WSLg.
-- [usbipd-win](https://github.com/dorssel/usbipd-win), so the camera can be attached to the Linux VM.
-- Rust inside WSL. This tree was built with rustc 1.93.1. The crate uses the 2021 edition.
-- The Linux user in the `video` group, so it can open `/dev/video*`.
-- An OBSBOT Tiny 2 Lite on USB.
+Built and run on Ubuntu 26.04.1 with rustc 1.93.1. The crate uses the 2021 edition. You need a desktop session, because the panel is a window. A headless machine has nowhere to draw it.
 
-## Setup
+### 1. Packages
 
-From the repository root, inside WSL:
+These are the compiler and window libraries that were installed on the machine that built the panel:
+
+```sh
+sudo apt update
+sudo apt install build-essential pkg-config libxkbcommon-dev libwayland-dev libgl1-mesa-dev libegl1-mesa-dev libxcb1-dev
+```
+
+### 2. Rust
+
+If `rustc --version` is missing, install the stable toolchain:
+
+```sh
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+. "$HOME/.cargo/env"
+```
+
+Open a new terminal after that so `cargo` is on `PATH`.
+
+### 3. Camera
+
+Plug the Tiny 2 Lite into a USB port. Ubuntu's kernel binds `uvcvideo` on its own. Confirm the device and a video node:
+
+```sh
+lsusb -d 3564:fef9
+ls -l /dev/video*
+```
+
+The panel scans `/dev/video0` through `/dev/video15` for the node whose name contains `OBSBOT`. A desktop session usually gets permission to those nodes when the camera is plugged in. If the open fails, add your user to the `video` group and log in again:
+
+```sh
+sudo usermod -aG video "$USER"
+```
+
+### 4. Build and run
+
+The first build downloads the crates, so it needs a network. Later builds can pass `--offline`.
+
+```sh
+git clone https://github.com/tehlulzywolf/obsbot.git
+cd obsbot/obsbot-core
+cargo run --example panel --features panel
+```
+
+That compiles the panel and opens the window on the current display. Leave the preview at 30 fps. A 60 fps preview on a usbip link has dropped the camera while a vendor write was in flight.
+
+### 5. Tests
+
+The tests do not open the camera.
 
 ```sh
 cd obsbot-core
-cargo test --offline
-cargo build --offline --example panel --features panel
+cargo test
+cargo test --example panel --features panel
 ```
 
-`cargo test` does not need the camera. The panel feature pulls in egui.
+The first command is the codec and device tests. The second runs the panel's unit tests.
 
-Attach the camera from Windows PowerShell. Use the bus id that `usbipd list` prints for `3564:fef9`. On the machine this was developed on, that bus was `8-2`.
+## From Windows, through WSL
+
+The same Ubuntu userland runs under WSL2. Attach the camera from Windows PowerShell with [usbipd-win](https://github.com/dorssel/usbipd-win), using the bus id `usbipd list` prints for `3564:fef9`:
 
 ```powershell
 usbipd list
 usbipd attach --wsl --busid <BUSID>
 ```
 
-Give it back to Windows with `usbipd detach --busid <BUSID>`.
+`usbipd detach --busid <BUSID>` gives the camera back to Windows. Inside Ubuntu, build and run with the same `cargo` commands. WSLg provides the display.
 
-## Run
-
-From `obsbot-core` in WSL, with WSLg providing `DISPLAY`:
-
-```sh
-cargo run --offline --example panel --features panel
-```
-
-`run_panel.sh` restarts the already-built debug binary if WSLg drops the connection. It does nothing if a panel process is already running.
-
-The preview stays at 30 fps. A 60 fps preview on this usbip link has dropped the camera while a vendor write was in flight.
-
-## Test
-
-```sh
-cd obsbot-core
-cargo test --offline
-cargo test --offline --example panel --features panel
-```
-
-The first command is the codec and device tests. The second runs the panel's unit tests. Neither one opens the camera.
+`obsbot-core/run_panel.sh` is only for that WSLg case. It restarts the already-built debug binary if WSLg drops the connection, and it points the process at WSLg's runtime directory. Do not use it on a normal Ubuntu desktop.
 
 ## Repository
 
