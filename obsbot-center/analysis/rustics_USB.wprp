@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  USB.wprp — Windows Performance Recorder profile that captures the in-box USB stack's ETW
+  providers with maximum verbosity, for recovering the Synaptics 06cb:009b bring-up (control +
+  bulk URBs) from earliest boot.
+
+  Why ETW (not just USBPcap): an ETW autologger starts in early boot, before the USB stack
+  enumerates devices — earlier than any SYSTEM at-startup task can attach a USBPcap filter. That
+  is the window the fingerprint bring-up lives in (see docs/capture/windows-capture-analysis.md).
+
+  Usage (elevated), via Capture-UsbEtw.ps1 which wraps `wpr`:
+      wpr -addboot USB.wprp!USB -filemode      # arm boot autologger, then Restart
+      wpr -stopboot C:\usbcap\usbboot.etl "usb boot"
+
+  Decode: tracerpt usbboot.etl -o usbboot.xml -of XML   (or Netmon 3.4 + USB parser), then feed
+          usbboot.xml to tools/extract_transfers.py (etw mode) piped into the decode_capture example.
+
+  Schema note: in the WPR profile schema the per-provider keyword mask is a NESTED element
+  (<Keywords><Keyword Value="0x..."/></Keywords>), NOT a "Keywords" attribute on <EventProvider>.
+  Using the attribute form triggers 0xc00ce015 ("attribute 'Keywords' ... not defined in the
+  DTD/Schema") and wpr refuses to arm the trace.
+
+  Caveat: on the modern xHCI stack (USBXHCI/UCX/USBHUB3) the amount of transfer-buffer *payload*
+  logged varies by Windows build. If payloads come back header-only, use the USBPcap rig
+  (Capture-Usb.ps1) armed on the same boot as the payload source. Providers below are set to
+  Level 5 (Verbose) / all-keywords to maximise what is emitted.
+-->
+<WindowsPerformanceRecorder Version="1.0"
+    Author="synaptics-fp-re" Team="synaptics-fp-re"
+    Comments="USB stack URB capture for 06cb:009b bring-up" Company="echtzeit-solutions">
+  <Profiles>
+
+    <EventCollector Id="EC_USB" Name="USB Event Collector">
+      <!-- 256 MB ring (1024 KB x 256) — generous for USB-only providers over a boot, while
+           staying small enough that the boot autologger can reliably allocate it in early boot.
+           1 GB (Buffers=1024) risks the autologger failing to start with no visible error. -->
+      <BufferSize Value="1024"/>
+      <Buffers Value="256"/>
+    </EventCollector>
+
+    <!-- in-box USB providers (GUIDs are the canonical Microsoft-Windows-USB-* control GUIDs).
+         Keyword mask 0xFFFFFFFFFFFFFFFF = all keywords, expressed as the nested <Keyword> the
+         WPR schema requires. -->
+    <EventProvider Id="EP_USBHUB3" Name="AC52AD17-CC01-4F85-8DF5-4DCE4333C99B" Level="5">
+      <Keywords><Keyword Value="0xFFFFFFFFFFFFFFFF"/></Keywords>
+    </EventProvider>
+    <EventProvider Id="EP_UCX" Name="36DA592D-E43A-4E28-AF6F-4BC57C5A11E8" Level="5">
+      <Keywords><Keyword Value="0xFFFFFFFFFFFFFFFF"/></Keywords>
+    </EventProvider>
+    <EventProvider Id="EP_USBXHCI" Name="30E1D284-5D88-459C-83FD-6345B39B19EC" Level="5">
+      <Keywords><Keyword Value="0xFFFFFFFFFFFFFFFF"/></Keywords>
+    </EventProvider>
+    <!-- legacy stack (harmless if the sensor is on the modern stack) -->
+    <EventProvider Id="EP_USBPORT" Name="C88A4EF5-D048-4013-9408-E04B7DB2814A" Level="5">
+      <Keywords><Keyword Value="0xFFFFFFFFFFFFFFFF"/></Keywords>
+    </EventProvider>
+    <EventProvider Id="EP_USBHUB" Name="7426A56B-E2D5-4B30-BDEF-B31815C1A74A" Level="5">
+      <Keywords><Keyword Value="0xFFFFFFFFFFFFFFFF"/></Keywords>
+    </EventProvider>
+
+    <Profile Id="USB.Verbose.File" Name="USB" Description="USB URB capture (file)"
+             LoggingMode="File" DetailLevel="Verbose">
+      <Collectors>
+        <EventCollectorId Value="EC_USB">
+          <EventProviders>
+            <EventProviderId Value="EP_USBHUB3"/>
+            <EventProviderId Value="EP_UCX"/>
+            <EventProviderId Value="EP_USBXHCI"/>
+            <EventProviderId Value="EP_USBPORT"/>
+            <EventProviderId Value="EP_USBHUB"/>
+          </EventProviders>
+        </EventCollectorId>
+      </Collectors>
+    </Profile>
+
+    <!-- Memory variant so `wpr -start USB.wprp!USB` (non-boot, on-demand) also works. -->
+    <Profile Id="USB.Verbose.Memory" Name="USB" Description="USB URB capture (memory)"
+             LoggingMode="Memory" DetailLevel="Verbose" Base="USB.Verbose.File"/>
+
+  </Profiles>
+</WindowsPerformanceRecorder>

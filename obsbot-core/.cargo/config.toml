@@ -1,0 +1,5 @@
+# Cross-link Linux binaries from Windows without gcc/libc dev packages:
+# rust's bundled rust-lld + self-contained link (works for static musl).
+[target.x86_64-unknown-linux-musl]
+linker = "C:/Users/WOLF/.rustup/toolchains/stable-x86_64-pc-windows-msvc/lib/rustlib/x86_64-pc-windows-msvc/bin/gcc-ld/ld.lld.exe"
+rustflags = ["-C", "linker-flavor=ld"]

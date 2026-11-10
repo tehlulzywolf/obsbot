@@ -1,0 +1,79 @@
+[package]
+name = "obsbot-core"
+version = "0.1.0"
+edition = "2021"
+description = "OBSBOT camera control (Tiny 2 Lite, VID_3564 PID_FEF9) — reverse-engineered protocol port of libdev.dll for Linux"
+license = "MIT"
+
+# Core has no dependencies: codec/device tests build and run offline on any
+# OS. The live transports are opt-in:
+#   - Linux UVC-XU (Tiny 2 Lite vendor channel) via the `uvc` feature (nusb).
+#   - Linux hidraw (other OBSBOT SKUs) via std-only transport.
+
+[features]
+uvc = ["dep:nusb"]
+codec = ["dep:jpeg-decoder", "dep:image", "dep:zune-jpeg"]
+stream = ["uvc", "codec"]
+panel = ["codec", "dep:eframe"]
+
+[dependencies]
+jpeg-decoder = { version = "0.3", optional = true }
+zune-jpeg = { version = "0.4", optional = true }
+image = { version = "0.25", optional = true, default-features = false, features = ["png"] }
+eframe = { version = "0.31", optional = true }
+
+[target.'cfg(target_os = "linux")'.dependencies]
+nusb = { version = "0.2", optional = true }
+libc = "0.2"
+
+[[example]]
+name = "kernel_test"
+required-features = ["codec"]
+
+[[example]]
+name = "panel"
+required-features = ["panel"]
+
+[[example]]
+name = "xuprobe"
+required-features = ["uvc"]
+
+[[example]]
+name = "grab_test"
+required-features = ["stream"]
+
+[[example]]
+name = "hello_gimbal"
+required-features = ["uvc"]
+
+[[example]]
+name = "rawdump"
+required-features = ["uvc"]
+
+[[example]]
+name = "probe_preset"
+required-features = ["uvc"]
+
+
+[[example]]
+name = "probe_ai"
+required-features = ["codec"]
+
+[[example]]
+name = "probe_aimode"
+required-features = ["codec"]
+
+# Debug `cargo run --example panel` decodes a 720p JPEG every frame.
+# opt-level 0 in these crates cannot finish inside 16.7 ms, so the
+# preview never reaches 60 fps. Justification: playback rate, not a new dependency.
+[profile.dev.package.zune-jpeg]
+opt-level = 3
+
+[profile.dev.package.zune-core]
+opt-level = 3
+
+[profile.dev.package.jpeg-decoder]
+opt-level = 3
+
+[profile.dev.package.obsbot-core]
+opt-level = 2

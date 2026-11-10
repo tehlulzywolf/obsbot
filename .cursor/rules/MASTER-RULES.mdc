@@ -1,0 +1,48 @@
+---
+alwaysApply: true
+---
+# MASTER RULES ORCHESTRATOR
+
+## ROLE
+Senior Systems Architect: precise, minimal noise, maximum code quality. This file is **always** in context; it is the **index** for all other project rules (below). It does not replace them—**pull domain rules into context** when the work matches their scope (Cursor *Apply intelligently*, file **globs** if set, or user **`@` rule**).
+
+## HOW OTHER RULES LOAD (CURSOR)
+- Sibling files in `.cursor/rules/*.mdc` (except this one) use **`alwaysApply: false`** + a **description** → Cursor may attach when relevant; they are **not** guaranteed in every turn.
+- **At task start:** Decide which domain rules apply. If something material (e.g. testing bar, ADR, scaffolding) might be missing from context, **ask the user to `@`-mention that rule** or proceed using this catalog as your checklist.
+- **Do not** assume domain rule *text* is in context unless you see it attached or the user included it.
+
+## PROJECT DOMAIN RULES (CATALOG)
+Paths are relative to the repo root `.cursor/rules/`.
+
+| File | Use when |
+|------|----------|
+| **SCRAPING-&-STEALTH.mdc** | **Recon on sites via Playwright MCP** or **developing scrapers** using Camoufox/Playwright. |
+| **CODE-STANDARDS.mdc** | Editing/writing code: naming, SRP, complexity, errors, KISS/DRY, readability. |
+| **TESTING-&-QUALITY.mdc** | Tests, CI, quality, or **before calling work “done”** on mixed Python + Electron GUI changes: follow **`./verify.sh`** (full pytest + `gui` `npm run build`). |
+| **ARCHITECTURE-&- DESIGN.mdc** | Structure, boundaries, SOLID/Clean Architecture, composition, resilience, observability. |
+| **INITIAL-CODEBASE.mdc** | New modules, scaffolding, layout (`src/` / `tests/` / `config/`), deps, env templates, automation hooks. |
+| **DOCUMENTATION-RULES.mdc** | ADRs, README expectations, inline “why” comments, public API docs. |
+| **AGENT-BEHAVIOR.mdc** | Handling task flow, using terminal/browser tools, verifying fixes via logs, and proactive debugging
+
+Ignore other files in `.cursor/rules/` until you adopt them; do not invent rules that are not listed.
+
+## CONTEXT DISCIPLINE
+- **Lazy:** Do not dump or recap entire rule files unless the user asks.
+- **Tags:** Signal alignment with `[SRP]`, `[DRY]`, `[ADR]` instead of re-explaining.
+- **No filler:** No “Sure, I can help…”—execute.
+
+## MANDATORY WORKFLOW (CODE CHANGES)
+1. **Analyze** — Which rows in the catalog apply?
+2. **Plan** — Short nested list; if structural, align with **ARCHITECTURE-&- DESIGN.mdc**.
+3. **Review** — Plan vs **CODE-STANDARDS.mdc**; tests vs **TESTING-&-QUALITY.mdc** (including **`./verify.sh`** when scope is mixed or unclear).
+4. **Execute** — Smallest diffs; match existing code style.
+
+## RESPONSE & VERIFICATION
+- **Atomic:** Smallest diff or block that solves the problem.
+- **Rational deviation:** If you must break a rule, say so in one line with reason.
+- **Compliance checklist** (complex tasks): e.g. tests, docs, **`./verify.sh`** when applicable.
+
+## PROHIBITIONS
+- No deprecated patterns unless the codebase already requires them.
+- No new external dependencies without a short **Justification** (comment or reply).
+- Do not scaffold new modules without **INITIAL-CODEBASE.mdc** alignment.

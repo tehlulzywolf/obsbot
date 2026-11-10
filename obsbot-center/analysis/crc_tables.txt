@@ -1,0 +1,6 @@
+sections: [('.text', '0x180001000'), ('.rdata', '0x1801c1000'), ('.data', '0x18020f000'), ('.pdata', '0x18021b000'), ('.rsrc', '0x180225000'), ('.reloc', '0x180226000')]
+off 0x1cb060 off2 0x1cb160 gap 0x100
+T1[:16]: 00 c1 81 40 01 c0 80 41 01 c0 80 41 00 c1 81 40
+T2[:16]: 00 c0 c1 01 c3 03 02 c2 c6 06 07 c7 05 c5 c4 04
+custom table crc: 0xb4c8
+saved crc_tables.json

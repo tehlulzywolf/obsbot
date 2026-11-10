@@ -1,0 +1,2 @@
+=== /mnt/c/Users/WOLF/RE-workspace/obsbot-center/analysis/caps/capE1.pcap  events=11
+kinds: {'GET-s3': 4, 'GET-s140': 7}

@@ -1,0 +1,24 @@
+# Rust build output
+**/target/
+
+# USB captures and ETW traces. The notes that came from them stay in the tree.
+**/*.pcap
+**/*.pcapng
+**/*.etl
+
+# Compiled helper left in the linux kit
+obsbot-linuxkit/hello_gimbal
+
+# Secrets and local environment
+.env
+.env.*
+*.pem
+credentials.json
+id_rsa
+id_ed25519
+
+# OS and editor noise
+Thumbs.db
+Desktop.ini
+.DS_Store
+*.swp
